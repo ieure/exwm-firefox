@@ -4,8 +4,9 @@
   :END:
 
   This package adds enhanced support for Firefox under EXWM.
-  Keybindings intentionally mirror
+  Keybindings intentionally mirror other Emacs navigation controls.
 
+  To enable it, run =M-x exwm-firefox-mode RET=
 
 ** Features
    :PROPERTIES:

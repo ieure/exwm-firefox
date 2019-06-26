@@ -23,7 +23,19 @@
 
 ;;; Commentary:
 
-;;
+;; This package adds enhanced support for Firefox under EXWM.
+;; Keybindings intentionally mirror other Emacs navigation controls.
+
+;; To enable it, run M-x exwm-firefox-mode RET
+
+;; - Navigate forwards (=C-c C-f=) and backwards (=C-c C-b=) in
+;;   browsing history.
+;; - Open a new window in an Emacs split (=C-c C-n=).
+;; - Open a new private window in an Emacs split (=C-c C-p=).
+;; - Detach the current tab into an Emacs split window (=C-c C-d=).
+;;   Requires tabdetach extension.
+;; - Merge the detached tab back into its parent window (=C-c C-=).
+;;   Requires tabdetach extension.
 
 ;;; Code:
 
@@ -144,3 +156,6 @@
         (add-hook 'exwm-manage-finish-hook 'exwm-firefox--intercept-hook))
     (remove-hook 'exwm-manage-finish-hook 'exwm-firefox--setup-keymap-hook)
     (remove-hook 'exwm-manage-finish-hook 'exwm-firefox--intercept-hook)))
+
+(provide 'exwm-firefox)
+;;; exwm-firefox.el ends here
