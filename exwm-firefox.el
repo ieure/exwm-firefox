@@ -1,34 +1,34 @@
+;;; exwm-firefox.el --- Firefox + EXWM     -*- lexical-binding: t; -*-
+
+;; Copyright (C) 2019  Ian Eure
+
+;; Author: Ian Eure <ian@retrospec.tv>
+;; Version: 0.1
+;; URL: https://github.com/ieure/exwm-firefox
+;; Package-Requires: ((emacs "25") (exwm "0.22.1") (exwm-firefox-core "20190608.2213"))
+;; Keywords: extensions
+
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+;;; Commentary:
+
+;;
+
+;;; Code:
 
 (defvar exwm-firefox--intercept nil
-  "The function to call when a new Firefox window is intercepted.")
-
- ;; DELETEME
-
-(defun exwm-firefox-core-window-new ()
-  "New window."
-  (interactive)
-  (exwm-input--fake-key ?\C-n))
-
-;;; History
-;;;###autoload
-(defun exwm-firefox-core-history-forward ()
-  "Forward in history."
-  (interactive)
-  (exwm-input--fake-key 'M-right))
-
-;;;###autoload
-(defun exwm-firefox-core-history-back ()
-  "Back in history."
-  (interactive)
-  (exwm-input--fake-key 'M-left))
-
-;;;###autoload
-(defun exwm-firefox-core-focus-search-bar ()
-  "Toggle focus between the search bar and the page."
-  (interactive)
-  (exwm-input--fake-key ?\M-d))
-
- ;; END DELETEME
+  "The function to call when a new Firefox window is created.")
 
 (defvar exwm-firefox-keymap
   (let ((map (copy-keymap exwm-mode-map)))
@@ -53,7 +53,12 @@
     (use-local-map exwm-firefox-keymap)))
 
 (defun exwm-firefox--split (old-window-config)
-  "Move a new Firefox window into a split."
+  "Move a new Firefox window into a split.
+
+   OLD-WINDOW-CONFIG is the window confguration at the time the
+   split window was created.
+
+   Returns nil."
   (let ((new-firefox (current-buffer)))
     (set-window-configuration old-window-config)
     (switch-to-buffer-other-window new-firefox)
@@ -61,7 +66,7 @@
     (setq exwm-firefox--intercept nil)))
 
 (defun exwm-firefox--workspace (workspace)
-  "Move a new Firefox window into a workspace."
+  "Move a new Firefox window into WORKSPACE."
   (let ((new-firefox (current-buffer)))
     (exwm-workspace-move-window workspace)))
 
@@ -79,18 +84,19 @@
     (error "Not a Firefox window"))
   (when exwm-firefox--intercept
     (warn "Already intercepting"))
+
   (setq exwm-firefox--intercept (apply-partially callback data))
+
   ;; If nothing happens in 3 seconds, reset the state
-  (run-with-timer 3 nil
-                  (lambda ()
-                    (setq exwm-firefox--intercept nil))))
+  (thread-last (lambda () (setq exwm-firefox--intercept nil))
+    (run-with-timer 3 nil)))
 
 (defun exwm-firefox-split-window ()
   "Create a new Firefox window in a split."
   (interactive)
   (exwm-firefox--intercept-next (current-window-configuration)
                                 'exwm-firefox--split)
-  (exwm-input--fake-key ?\C-n))
+  (exwm-firefox-core-window-new))
 
 (defun exwm-firefox-split-private (&optional arg)
   "Create a new Firefox private window in a split.
@@ -103,7 +109,7 @@
       (exwm-firefox--workspace arg)
     (exwm-firefox--intercept-next (current-window-configuration)
                                   'exwm-firefox--split))
-  (exwm-input--fake-key 'C-S-p))
+  (exwm-firefox-core-window-new-private))
 
 (defun exwm-firefox-split-detach (&optional arg)
   "Detach the current tab into a new split window.

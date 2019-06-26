@@ -1,0 +1,22 @@
+* EXWM Firefox
+  :PROPERTIES:
+  :ID:       dbddb67e-5dc8-4e93-bc28-297e2508f5c5
+  :END:
+
+  This package adds enhanced support for Firefox under EXWM.
+  Keybindings intentionally mirror
+
+
+** Features
+   :PROPERTIES:
+   :ID:       48f50daf-d806-452d-b0df-95a8a1316a6c
+   :END:
+
+   - Navigate forwards (=C-c C-f=) and backwards (=C-c C-b=) in
+     browsing history.
+   - Open a new window in an Emacs split (=C-c C-n=).
+   - Open a new private window in an Emacs split (=C-c C-p=).
+   - Detach the current tab into an Emacs split window (=C-c C-d=).
+     Requires [[https://addons.mozilla.org/en-US/firefox/addon/tabdetach/][tabdetach]] extension.
+   - Merge the detached tab back into its parent window (=C-c C-=).
+     Requires [[https://addons.mozilla.org/en-US/firefox/addon/tabdetach/][tabdetach]] extension.
