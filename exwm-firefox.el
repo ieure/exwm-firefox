@@ -84,7 +84,7 @@
 
 (defun exwm-firefox--intercept-hook ()
   "Run an action the next time a Firefox window is created."
-  (if-let ((callback (and (exwm-firefox-p) exwm-firefox--intercept)))
+  (if-let ((callback (and (exwm-firefox?) exwm-firefox--intercept)))
       (funcall callback)))
 
 (defun exwm-firefox--intercept-next (data callback)
