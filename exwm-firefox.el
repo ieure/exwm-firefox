@@ -39,6 +39,20 @@
 
 ;;; Code:
 
+(require 'exwm-firefox-core)
+(require 'ert)
+
+(defconst exwm-firefox--title-re
+  (rx bol
+      ; Page title.  Optional because it's not set on blank pages.
+      (optional (group (* anything)) " - ")
+      ; Always present.
+      (seq "Mozilla Firefox")
+      ; Present in private windows
+      (optional (group " (Private Browsing)"))
+      eol)
+  "Regular expression to ")
+
 (defvar exwm-firefox--intercept nil
   "The function to call when a new Firefox window is created.")
 
@@ -62,7 +76,28 @@
 (defun exwm-firefox--setup-keymap-hook ()
   "Configure Firefox keymap for EXWM."
   (when (exwm-firefox?)
+    (message "Setting up keymap")
     (use-local-map exwm-firefox-keymap)))
+
+(defun exwm-firefox--title->buffer-name (title)
+  (concat "*"
+          (save-match-data
+            (unless (string-match exwm-firefox--title-re title)
+              (error "This doesn't appear to be a Firefox window."))
+
+            (concat
+             "firefox"
+             (if (match-string 2 title) "-private" "")
+             (if-let ((page-title (match-string 1 title)))
+                 (concat ": " page-title)
+               "")))
+          "*"))
+
+(defun exwm-firefox--update-title ()
+  (when (exwm-firefox?)
+    (let ((name (exwm-firefox--title->buffer-name exwm-title)))
+      (unless (s-starts-with? name (buffer-name))
+        (rename-buffer (generate-new-buffer-name name))))))
 
 (defun exwm-firefox--split (old-window-config)
   "Move a new Firefox window into a split.
@@ -153,9 +188,18 @@
   (if exwm-firefox-mode
       (progn
         (add-hook 'exwm-manage-finish-hook 'exwm-firefox--setup-keymap-hook)
-        (add-hook 'exwm-manage-finish-hook 'exwm-firefox--intercept-hook))
+        (add-hook 'exwm-manage-finish-hook 'exwm-firefox--intercept-hook)
+        (add-hook 'exwm-update-title-hook 'exwm-firefox--update-title))
     (remove-hook 'exwm-manage-finish-hook 'exwm-firefox--setup-keymap-hook)
     (remove-hook 'exwm-manage-finish-hook 'exwm-firefox--intercept-hook)))
+
+(ert-deftest exwm-firefox--test--title->buffer-name ()
+  (should (string= "*firefox*" (exwm-firefox--title->buffer-name "Mozilla Firefox")))
+  (should (string= "*firefox-private*" (exwm-firefox--title->buffer-name "Mozilla Firefox (Private Browsing)")))
+  (should (string= "*firefox: DuckDuckGo — Privacy, simplified.*"
+             (exwm-firefox--title->buffer-name "DuckDuckGo — Privacy, simplified. - Mozilla Firefox")))
+  (should (string= "*firefox: ieure/scratch-el: Scratch buffers for Emacs*"
+             (exwm-firefox--title->buffer-name "ieure/scratch-el: Scratch buffers for Emacs - Mozilla Firefox"))))
 
 (provide 'exwm-firefox)
 ;;; exwm-firefox.el ends here
