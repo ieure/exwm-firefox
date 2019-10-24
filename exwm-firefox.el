@@ -76,7 +76,6 @@
 (defun exwm-firefox--setup-keymap-hook ()
   "Configure Firefox keymap for EXWM."
   (when (exwm-firefox?)
-    (message "Setting up keymap")
     (use-local-map exwm-firefox-keymap)))
 
 (defun exwm-firefox--title->buffer-name (title)
