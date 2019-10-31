@@ -76,20 +76,20 @@
 (defun exwm-firefox--setup-keymap-hook ()
   "Configure Firefox keymap for EXWM."
   (when (exwm-firefox?)
+    (message "Setting up keymap")
     (use-local-map exwm-firefox-keymap)))
 
 (defun exwm-firefox--title->buffer-name (title)
   (concat "*"
           (save-match-data
-            (unless (string-match exwm-firefox--title-re title)
-              (error "This doesn't appear to be a Firefox window."))
-
-            (concat
-             "firefox"
-             (if (match-string 2 title) "-private" "")
-             (if-let ((page-title (match-string 1 title)))
-                 (concat ": " page-title)
-               "")))
+            (if (string-match exwm-firefox--title-re title)
+                (concat
+                 "firefox"
+                 (if (match-string 2 title) "-private" "")
+                 (if-let ((page-title (match-string 1 title)))
+                     (concat ": " page-title)
+                   ""))
+              "firefox"))
           "*"))
 
 (defun exwm-firefox--update-title ()
