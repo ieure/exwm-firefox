@@ -1,6 +1,6 @@
 ;;; exwm-firefox.el --- Firefox + EXWM     -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2019  Ian Eure
+;; Copyright (C) 2019, 2020  Ian Eure
 
 ;; Author: Ian Eure <ian@retrospec.tv>
 ;; Version: 0.1
@@ -45,7 +45,7 @@
 (defconst exwm-firefox--title-re
   (rx bol
       ; Page title.  Optional because it's not set on blank pages.
-      (optional (group (* anything)) " - ")
+      (optional (group (* anything)) (seq (+ space) (or "-" "—") (+ space)))
       ; Always present.
       (seq "Mozilla Firefox")
       ; Present in private windows
