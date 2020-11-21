@@ -195,7 +195,9 @@
   (should (string= "*firefox*" (exwm-firefox--title->buffer-name "Mozilla Firefox")))
   (should (string= "*firefox-private*" (exwm-firefox--title->buffer-name "Mozilla Firefox (Private Browsing)")))
   (should (string= "*firefox: DuckDuckGo — Privacy, simplified.*"
-             (exwm-firefox--title->buffer-name "DuckDuckGo — Privacy, simplified. - Mozilla Firefox")))
+                   (exwm-firefox--title->buffer-name "DuckDuckGo — Privacy, simplified. - Mozilla Firefox")))
+  (should (string= "*firefox: DuckDuckGo — Privacy, simplified.*"
+                   (exwm-firefox--title->buffer-name "DuckDuckGo — Privacy, simplified. — Mozilla Firefox")))
   (should (string= "*firefox: ieure/scratch-el: Scratch buffers for Emacs*"
              (exwm-firefox--title->buffer-name "ieure/scratch-el: Scratch buffers for Emacs - Mozilla Firefox"))))
 
