@@ -1,11 +1,11 @@
 ;;; exwm-firefox.el --- Firefox + EXWM     -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2019, 2020  Ian Eure
+;; Copyright (C) 2019, 2020, 2021  Ian Eure
 
 ;; Author: Ian Eure <ian@retrospec.tv>
 ;; Version: 0.1
 ;; URL: https://github.com/ieure/exwm-firefox
-;; Package-Requires: ((emacs "25") (exwm "0.22.1") (exwm-firefox-core "20190608.2213"))
+;; Package-Requires: ((emacs "25") (s "1.12.0") (exwm "0.22.1") (exwm-firefox-core "20190608.2213"))
 ;; Keywords: extensions
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -40,6 +40,7 @@
 ;;; Code:
 
 (require 'exwm-firefox-core)
+(require 's)
 (require 'ert)
 
 (defconst exwm-firefox--title-re
@@ -110,11 +111,6 @@
     (exwm-firefox-core-focus-search-bar)
     (setq exwm-firefox--intercept nil)))
 
-(defun exwm-firefox--workspace (workspace)
-  "Move a new Firefox window into WORKSPACE."
-  (let ((new-firefox (current-buffer)))
-    (exwm-workspace-move-window workspace)))
-
 (defun exwm-firefox--intercept-hook ()
   "Run an action the next time a Firefox window is created."
   (if-let ((callback (and (exwm-firefox?) exwm-firefox--intercept)))
@@ -143,32 +139,24 @@
                                 'exwm-firefox--split)
   (exwm-firefox-core-window-new))
 
-(defun exwm-firefox-split-private (&optional arg)
+(defun exwm-firefox-split-private ()
   "Create a new Firefox private window in a split.
 
-   With no ARG, create the new window in a split in the current workspace.
-
    With ARG prefix, display the window in that workspace."
-  (interactive "P")
-  (if arg
-      (exwm-firefox--workspace arg)
-    (exwm-firefox--intercept-next (current-window-configuration)
-                                  'exwm-firefox--split))
+  (interactive)
+  (exwm-firefox--intercept-next (current-window-configuration)
+                                'exwm-firefox--split)
   (exwm-firefox-core-window-new-private))
 
-(defun exwm-firefox-split-detach (&optional arg)
+(defun exwm-firefox-split-detach ()
   "Detach the current tab into a new split window.
 
    With no ARG, create the new window in a split in the current workspace.
 
-   With ARG prefix, display the window in that workspace.
-
    This requires the tabdetach extension to work."
-  (interactive "P")
-  (if arg
-      (exwm-firefox--workspace arg)
-    (exwm-firefox--intercept-next (current-window-configuration)
-                                  'exwm-firefox--split))
+  (interactive)
+  (exwm-firefox--intercept-next (current-window-configuration)
+                                'exwm-firefox--split)
   (exwm-input--fake-key ?\M-\S-d))
 
 (defun exwm-firefox-merge ()
@@ -180,7 +168,11 @@
 
 (define-minor-mode exwm-firefox-mode
   "Minor mode to enhance Firefox in EXWM."
-  nil nil nil
+  :init-value nil
+  :lighter nil
+  :keymap nil
+  :keymap nil
+  :group 'tools
   :global t
   (setq exwm-firefox--intercept nil)
   (if exwm-firefox-mode
